@@ -1,0 +1,23 @@
+<launch>
+  <node pkg="cv_camera" type="cv_camera_node" name="camera" />
+  <node name="image_proc" pkg="image_proc" type="image_proc" ns="camera"/>
+
+  <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
+    <remap from="image_rect" to="/camera/image_rect" />
+    <remap from="camera_info" to="/camera/camera_info" />
+
+    <param name="tag_family" type="str" value="36h11" />
+    <param name="projected_optics" type="bool" value="true" />
+
+    <rosparam param="tag_descriptions">[
+      {id: 0, size: 0.174},
+    ]
+    </rosparam>
+  </node>
+
+  <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gps">
+    <param name="port" value="/dev/ttyUSB0" />
+    <param name="baud" value="9600" />
+  </node>
+
+</launch>
