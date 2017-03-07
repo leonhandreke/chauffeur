@@ -4,3 +4,6 @@
 [submodule "src/cv_camera"]
 	path = src/cv_camera
 	url = https://github.com/OTL/cv_camera
+[submodule "src/nmea_navsat_driver"]
+	path = src/nmea_navsat_driver
+	url = https://github.com/ros-drivers/nmea_navsat_driver
