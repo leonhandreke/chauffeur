@@ -7,3 +7,6 @@
 [submodule "src/nmea_navsat_driver"]
 	path = src/nmea_navsat_driver
 	url = https://github.com/ros-drivers/nmea_navsat_driver
+[submodule "src/imu_tools"]
+	path = src/imu_tools
+	url = https://github.com/ccny-ros-pkg/imu_tools
