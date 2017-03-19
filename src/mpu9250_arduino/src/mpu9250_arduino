@@ -38,14 +38,13 @@ class Mpu9250Reader(LineReader):
             self.orientation = map(float, line.split(':')[1].split(','))
 
 
-
 def run():
     rospy.init_node('mpu9250_arduino')
 
     imu_raw_data_publisher = rospy.Publisher('imu/data', sensor_msgs.msg.Imu, queue_size=1)
     imu_mag_publisher = rospy.Publisher('imu/mag', sensor_msgs.msg.MagneticField, queue_size=1)
 
-    ser = serial.Serial('/dev/ttyUSB1', 38400, timeout=5)
+    ser = serial.Serial(rospy.get_param('~port'), rospy.get_param('~baud', 38400), timeout=5)
     with ReaderThread(ser, Mpu9250Reader) as protocol:
         while not rospy.is_shutdown():
             # Convert acc from g to m/s^2
@@ -57,7 +56,7 @@ def run():
 
             imu_raw_data_publisher.publish(
                     sensor_msgs.msg.Imu(
-                        header=std_msgs.msg.Header(frame_id='imu'),
+                        header=std_msgs.msg.Header(frame_id=rospy.get_param('~frame_id', 'imu')),
                         orientation=geometry_msgs.msg.Quaternion(*protocol.orientation),
                         linear_acceleration=geometry_msgs.msg.Vector3(*acc),
                         angular_velocity=geometry_msgs.msg.Vector3(*gyro)))
