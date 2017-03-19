@@ -15,6 +15,10 @@
     </rosparam>
   </node>
 
+  <node pkg="mpu9250_arduino" type="mpu9250_arduino" name="imu">
+    <param name="port" value="/dev/ttyUSB.A600fbqK" />
+  </node>
+
   <!--<node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gps">
     <param name="port" value="/dev/ttyUSB0" />
     <param name="baud" value="9600" />
