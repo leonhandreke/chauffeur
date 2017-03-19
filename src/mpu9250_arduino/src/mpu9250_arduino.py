@@ -5,8 +5,10 @@ import rospy
 import serial
 from serial.threaded import LineReader, ReaderThread
 import sys
+import math
 
 # These can only be imported after the main ROS imports because they set up the import paths
+import std_msgs.msg
 import sensor_msgs.msg
 import geometry_msgs.msg
 
@@ -19,6 +21,7 @@ class Mpu9250Reader(LineReader):
         self.acc = (0, 0, 0)
         self.mag = (0, 0, 0)
         self.gyro = (0, 0, 0)
+        self.orientation = (0, 0, 0, 0)
         super(Mpu9250Reader, self).__init__(*args, **kwargs)
 
     def handle_line(self, data):
@@ -31,13 +34,15 @@ class Mpu9250Reader(LineReader):
             self.gyro = map(float, line.split(':')[1].split(','))
         if line.startswith('MAG:'):
             self.mag = map(float, line.split(':')[1].split(','))
+        if line.startswith('ORI:'):
+            self.orientation = map(float, line.split(':')[1].split(','))
 
 
 
 def run():
     rospy.init_node('mpu9250_arduino')
 
-    imu_raw_data_publisher = rospy.Publisher('imu/data_raw', sensor_msgs.msg.Imu, queue_size=1)
+    imu_raw_data_publisher = rospy.Publisher('imu/data', sensor_msgs.msg.Imu, queue_size=1)
     imu_mag_publisher = rospy.Publisher('imu/mag', sensor_msgs.msg.MagneticField, queue_size=1)
 
     ser = serial.Serial('/dev/ttyUSB1', 38400, timeout=5)
@@ -52,8 +57,8 @@ def run():
 
             imu_raw_data_publisher.publish(
                     sensor_msgs.msg.Imu(
-                        # We don't have orientation from the IMU
-                        orientation_covariance=[-1, 0, 0, 0, 0, 0, 0, 0, 0],
+                        header=std_msgs.msg.Header(frame_id='imu'),
+                        orientation=geometry_msgs.msg.Quaternion(*protocol.orientation),
                         linear_acceleration=geometry_msgs.msg.Vector3(*acc),
                         angular_velocity=geometry_msgs.msg.Vector3(*gyro)))
             imu_mag_publisher.publish(
